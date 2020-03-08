@@ -8,6 +8,8 @@
 
 # GUI
 
+![GUI](https://github.com/Naccl/llk/blob/master/GUI.png)
+
 增加了GUI界面，用的Tkinter模块
 
-可自定义消块的频率
+可自定义消块的点击间隔
