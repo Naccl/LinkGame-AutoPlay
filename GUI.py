@@ -238,7 +238,7 @@ def getGameImage():
 
 
 GUI = tk.Tk()
-GUI.title("连连看辅助")
+GUI.title("连连看自动玩")
 
 GUI_width = 250
 GUI_height = 100
