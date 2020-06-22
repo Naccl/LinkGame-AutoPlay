@@ -6,13 +6,11 @@ import win32con
 import compare_image
 import numpy
 from queue import Queue
-import pyautogui
 import time
 import tkinter as tk
 
 ############################## 全局参数 ##############################
 window_title = "QQ游戏 - 连连看角色版"  # 游戏窗口名称
-imgpath = "C:/Users/luadmin/Desktop/llk/testimg/"  # 截图保存位置
 window_width = 800 #游戏窗口宽度
 window_height = 600 #游戏窗口高度
 game_width = 589  # 游戏区域宽度
@@ -63,7 +61,8 @@ def start():
         # win32gui.SetForegroundWindow(hwnd)  # 激活窗口至前端
         
         #点击激活游戏窗口
-        pyautogui.click(int(window_left + 0.5 * window_width), window_top + 20, button="left", interval=0)
+        mouseClick(int(window_left + 0.5 * window_width), int(window_top + 20))
+        # pyautogui.click(int(window_left + 0.5 * window_width), window_top + 20, button="left", interval=0)
 
         #计算游戏棋盘区域
         game_left = window_left + 14
@@ -106,7 +105,8 @@ def solve(matrix):
         unsolvable()
 
 def unsolvable():
-    pyautogui.click(chonglie_x, chonglie_y, button="left", interval = 0) # 使用重列道具
+    mouseClick(chonglie_x, chonglie_y)  # 使用重列道具
+    # pyautogui.click(chonglie_x, chonglie_y, button="left", interval = 0)
 
     #等待游戏界面的无解提示消失，如果减少sleep时间将影响图像识别导致部分方块无法消除
     time.sleep(8)
@@ -123,17 +123,27 @@ def solveOneStep():
     if not resq.empty():
         cur = resq.get()
         print(cur)
-        from_x = game_left + (cur[1] + 0.5) * grid_width
-        from_y = game_top + (cur[0] + 0.5) * grid_height
-        to_x = game_left + (cur[3] + 0.5) * grid_width
-        to_y = game_top + (cur[2] + 0.5) * grid_height
+        from_x = int(game_left + (cur[1] + 0.5) * grid_width)
+        from_y = int(game_top + (cur[0] + 0.5) * grid_height)
+        to_x = int(game_left + (cur[3] + 0.5) * grid_width)
+        to_y = int(game_top + (cur[2] + 0.5) * grid_height)
 
-        pyautogui.click(from_x, from_y, button = "left", interval = click_interval)
-        pyautogui.click(to_x, to_y, button = "left", interval = click_interval)
+        mouseClick(from_x, from_y)
+        mouseClick(to_x, to_y)
+        time.sleep(click_interval)
+        # pyautogui.click(from_x, from_y, button = "left", interval = click_interval)
+        # pyautogui.click(to_x, to_y, button = "left", interval = click_interval)
     else:
         print("over")
 
-def judge(x,y,count,visit,matrix,res):
+
+def mouseClick(x, y):
+    win32api.SetCursorPos((x, y))
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x, y, 0, 0)
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x, y, 0, 0)
+
+
+def judge(x, y, count, visit, matrix, res):
     if x < 0 or y < 0 or x >= num_row or y >= num_col:  # 边界
         return False
     if count > 2: # 转向次数超过两次 剪枝
@@ -144,19 +154,19 @@ def judge(x,y,count,visit,matrix,res):
         return False
     return True
 
-def bfs(matrix,x,y):
+def bfs(matrix, x, y):
     if matrix[x][y] == 0:# 如果坐标上不是方块则跳过
         return 1
-    visit = numpy.zeros((num_row,num_col))
+    visit = numpy.zeros((num_row, num_col))
     visit[x][y] = 1
     q = Queue()
-    q.put([x,y,-1,0,visit]) # 1.方块坐标x 2.方块坐标y 3.上一步方向 -1为起始 4.转向次数 5.坐标访问记录数组
+    q.put([x, y, -1, 0, visit]) # 1.方块坐标x 2.方块坐标y 3.上一步方向 -1为起始 4.转向次数 5.坐标访问记录数组
     while not q.empty():
         cur = q.get()
         if (cur[0] != x or cur[1] != y) and matrix[cur[0]][cur[1]] == matrix[x][y]:
             matrix[x][y] = 0 # 如果不需要打印过程，可以将此处修改为 0，并将 printMatrix()删除
             matrix[cur[0]][cur[1]] = 0 # 如果不需要打印过程，可以将此处修改为 0，并将 printMatrix()删除
-            resq.put([x,y,cur[0],cur[1]])
+            resq.put([x, y, cur[0], cur[1]])
             return 0
         for i in range(4):
             nx = cur[0] + dx[i]
@@ -168,7 +178,7 @@ def bfs(matrix,x,y):
                 ncount += 1
             if judge(nx, ny, ncount, nvisit, matrix, matrix[x][y]):
                 nvisit[nx][ny] = 1
-                q.put([nx,ny,nd,ncount,nvisit])
+                q.put([nx, ny, nd, ncount, nvisit])
     return 0
 
 def gameImageToMatrix(img):
@@ -185,7 +195,7 @@ def gameImageToMatrix(img):
             bottom = top + grid_height
 
             # 分割 存储 方块 image
-            grid_image = img.crop((left,top,right,bottom))
+            grid_image = img.crop((left, top, right, bottom))
             image_matrix[row][col] = grid_image
             
     for row in range(num_row):
@@ -255,7 +265,7 @@ tk.Button(GUI, text="0.4", font=("宋体", 12), command=lambda:setEntryValue(0.4
 
 tk.Label(GUI, text="间隔", font=("宋体", 12)).place(width=40, height=30, x=45, y=55)
 value = tk.StringVar(value="0.0")
-entry = tk.Entry(GUI, show=None, font=("宋体", 12),insertontime=1000, textvariable=value)
+entry = tk.Entry(GUI, show=None, font=("宋体", 12), insertontime=1000, textvariable=value)
 entry.place(width=40, height=30, x=85, y=55)
 tk.Button(GUI, text="开始", font=("宋体", 12), command=start).place(width=100, height=70, x=140, y=15)
 

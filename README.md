@@ -8,9 +8,9 @@
 
 # GUI
 
-![GUI](https://github.com/Naccl/llk/blob/master/GUI.png)
+![](https://cdn.jsdelivr.net/gh/Naccl/LinkGame-AutoPlay/test.gif)
 
-增加了GUI界面，用的Tkinter模块
+使用Tkinter模块，简单的GUI界面
 
 可自定义消块的点击间隔
 
