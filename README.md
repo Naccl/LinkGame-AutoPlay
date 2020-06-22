@@ -8,9 +8,10 @@
 
 # GUI
 
-![](https://cdn.jsdelivr.net/gh/Naccl/LinkGame-AutoPlay/test.gif)
-
 使用Tkinter模块，简单的GUI界面
 
 可自定义消块的点击间隔
 
+# 演示
+
+演示请看博客https://naccl.top/blog/13
